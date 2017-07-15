@@ -19,7 +19,7 @@ var ScoreBoard = React.createClass({
 
 	onScoreChange: function(delta, index){
 		var score = this.props.players[index].score
-		var scoreUrl = '/scores/' + score.id.toString();
+		var scoreUrl = '/scores/' + score.id.toString()
 		score.count += delta
 		$.ajax({
 			url:scoreUrl,
@@ -30,11 +30,26 @@ var ScoreBoard = React.createClass({
 				this.setState({players: this.props.players})
 			},
 			error: function(){
-				console.log("There has been a major error")
+				console.log("Soz m8 we couldn't increase that score")
 			}
 		})
-
 	},
+
+	persistPlayer: function(newPlayer){
+		$.ajax({
+			url:'/players',
+			type:'POST',
+			data: newPlayer,
+			context: this,
+			success: function(response){
+				this.state.players.push(response)
+				this.setState(this.state)
+			}, error: function(){
+				console.log('that playa aint happenin ya bish')
+			}
+		})
+	},
+
 
 	render: function(){
 		return(
@@ -52,6 +67,7 @@ var ScoreBoard = React.createClass({
 										}.bind(this)} />
 					}.bind(this))}
 				</div>
+				<NewPlayerForm addPlayer={this.persistPlayer} />
 			</div>
 		)
 	}
@@ -89,7 +105,6 @@ Player.propTypes = {
 }
 
 function Counter(props){
-
 	return (
 		<span>
 		<button onClick={function(){props.onChange(1)}}>+</button>
@@ -104,40 +119,50 @@ Counter.propTypes = {
 	onChange: React.PropTypes.func.isRequired
 }
 
+var NewPlayerForm = React.createClass({
+
+	propTypes: {
+		addPlayer: React.PropTypes.func.isRequired
+	},
+
+	getInitialState: function(){
+		return {
+			name: "",
+			description:""
+		}
+	},
+
+	updatePlayerName: function(e){
+		this.setState({name: e.target.value})
+	},
+
+	updatePlayerDescription: function(e){
+		this.setState({description: e.target.value})
+	},
+
+	onSubmit: function(e){
+		e.preventDefault();
+		var data = this.state
+		this.props.addPlayer(data)
+		this.setState({name:'', description:''})
+	},
+
+	render: function(){
+		return(
+			<div className="form_style">
+				<form onSubmit={this.onSubmit}>
+					<label>Player Name</label>
+					<input onChange={this.updatePlayerName} type="text" id="player_name" value={this.state.name}></input><br></br>
+					<label>Player Description</label>
+					<input id='player_description' value={this.state.description} onChange={this.updatePlayerDescription}></input><br></br>
+					<input type="submit"></input>
+				</form>
+			</div>
+		)
+	}
+})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 // var nextId = 4
 // var ScoreBoard = React.createClass({
 // 	propTypes: {
